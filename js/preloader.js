@@ -7,7 +7,6 @@ Preloader = function (game) {
 
   this.ready = false;
 
-
   this.preload = function () {
 
     //	These are the assets we loaded in Boot.js
@@ -20,11 +19,14 @@ Preloader = function (game) {
     //	as the files below are loaded in.
     this.load.setPreloadSprite(this.preloadBar);
 
-    var images = ['hex', 'hex-glow', 'arrow', 'circlet', 'bonbon', 'sweet', 'diamond'];
+    var images = ['hex', 'hex-glow', 'arrow', 'circlet', 'bonbon', 'sweet', 'diamond', 'arrow'];
 
     images.forEach(function(img) {
       _this.load.image(img, 'assets/' + img + '.png');
     });
+
+    game.load.audio('coin', ['assets/coin.mp3']);
+
 
 /*    this.load.image('titlepage', 'images/title.jpg');
     this.load.atlas('playButton', 'images/play_button.png', 'images/play_button.json');

@@ -72,10 +72,10 @@ Board = (function () {
 
   this.config = {
     pieces: ['circlet', 'bonbon', 'sweet', 'diamond'],
-    size: { cols: 9, rows: 5 },
-    hexWidth: 250,
-    hexScale: 250 / 400,
-    candyScale: 250 / 400 / 1.8
+    size: { cols: 11, rows: 5 },
+    hexWidth: 200,
+    hexScale: 200 / 400,
+    candyScale: 200 / 400 / 1.8
   };
 
   function generateBoard() {

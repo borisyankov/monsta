@@ -21,16 +21,17 @@ Game = function (game) {
   this.background;
 
   this.bgSprites = [];
-  this.sprites = [];
   this.candySprites = [];
-
 
   this.create = function () {
 
     Board.build();
 
     this.backgroundGroup = game.add.group();
+    this.arrowsGroup = game.add.group();
     this.unselectables = [];
+
+    this.coinSound = game.add.audio('coin', 1, false);
 
     this.addBoard();
   };
@@ -84,12 +85,6 @@ Game = function (game) {
     sprite = game.add.sprite(pos.x, pos.y, kind);
     sprite.anchor.setTo(0.5, 0.5);
 
-    this.sprites[sprite] = {
-      col: col,
-      row: row,
-      kind: kind
-    };
-
     return sprite;
   };
 
@@ -115,6 +110,27 @@ Game = function (game) {
     hex.events.onInputOver.add(this.hexOver, this);
 
     return hex;
+  };
+
+  this.addArrow = function (from, to) {
+    var arrowSprite,
+      fromPos = Board.calculatePosition(from.col, from.row),
+      toPos = Board.calculatePosition(to.col, to.row),
+      middlePos = {
+        x: (fromPos.x + toPos.x) / 2,
+        y: (fromPos.y + toPos.y) / 2
+      };
+
+
+    arrowSprite = this.arrowsGroup.create(middlePos.x, middlePos.y, 'arrow');
+
+    //arrow = game.add.sprite(middlePos.x, middlePos.y, 'arrow');
+
+    arrowSprite.scale.setTo(Board.config.hexScale, Board.config.hexScale);
+    arrowSprite.anchor.setTo(0.5, 0.5);
+    arrowSprite.rotation = game.physics.angleToXY(arrowSprite, toPos.x, toPos.y);
+
+    return arrowSprite;
   };
 
 
@@ -175,18 +191,31 @@ Game = function (game) {
   };
 
   Board.Selection.onAdd = function (added) {
+
     _this.tweenThat(_this.candySprites[added.row][added.col].scale,
       { x: Board.config.candyScale * 1.2, y: Board.config.candyScale * 1.2 });
+
     _this.bgSprites[added.row][added.col].loadTexture('hex-glow', 0);
-    // add arrow
+
+    if (Board.Selection.items.length > 1) {
+      _this.addArrow(Board.Selection.penultimate(), Board.Selection.last());
+    }
+
+    _this.coinSound.play('', 0, 0.2 + 0.05 * Board.Selection.items.length, false);
   };
 
   Board.Selection.onRemove = function (removed) {
 
     _this.tweenThat(_this.candySprites[removed.row][removed.col].scale,
       { x: Board.config.candyScale, y: Board.config.candyScale });
+
     _this.bgSprites[removed.row][removed.col].loadTexture('hex', 0);
-    // remove arrow
+
+    if (_this.arrowsGroup.countLiving() > 0) {
+      _this.arrowsGroup.remove(_this.arrowsGroup.getAt(_this.arrowsGroup.countLiving() - 1));
+    }
+
+    _this.coinSound.play('', 0, 0.2 + 0.05 * Board.Selection.items.length, false);
   };
 
 
