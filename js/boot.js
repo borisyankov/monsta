@@ -1,6 +1,4 @@
-Monsta = {};
-
-Monsta.Boot = function (game) {
+Boot = function (game) {
 
   this.preload = function () {
 

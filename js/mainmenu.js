@@ -1,4 +1,4 @@
-Monsta.MainMenu = function (game) {
+MainMenu = function (game) {
 
 	this.music = null;
 	this.playButton = null;

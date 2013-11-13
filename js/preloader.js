@@ -1,4 +1,4 @@
-Monsta.Preloader = function (game) {
+Preloader = function (game) {
 
   var _this = this;
 

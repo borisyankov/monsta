@@ -1,6 +1,74 @@
-Monsta.Board = (function () {
+Board = (function () {
 
-  this.selection = [];
+
+  this.Selection = (function () {
+
+    var _this = this;
+
+    this.items = [];
+
+    this.onAdd = function (pos) {
+    };
+    this.onRemove = function (pos) {
+    };
+
+    this.empty = function () {
+      return this.items.length == 0;
+    };
+
+    this.add = function (pos) {
+
+      if (this.exists(pos)) return;
+
+      _this.items.push(pos);
+      _this.onAdd(pos);
+    };
+
+    this.remove = function () {
+
+      //if (Board.selection.length == 0) return;
+
+      var pos = _this.items.pop();
+      _this.onRemove(pos);
+    };
+
+    this.clear = function () {
+      while (this.items.length > 0) {
+        this.remove();
+      }
+    };
+
+    this.first = function () {
+      return _this.items[0];
+    };
+
+    this.last = function () {
+      return _this.items[_this.items.length - 1];
+    };
+
+    this.penultimate = function () {
+      return _this.items[_this.items.length - 2];
+    };
+
+    this.areSame = function (one, two) {
+      return (one.col == two.col && one.row == two.row);
+    };
+
+    this.exists = function (pos) {
+
+      var found = false;
+      _this.items.forEach(function (item) {
+        if (_this.areSame(item, pos)) {
+          found = true;
+        }
+      });
+      return found;
+    };
+
+    return this;
+
+  })();
+
 
   this.config = {
     pieces: ['circlet', 'bonbon', 'sweet', 'diamond'],
@@ -39,15 +107,11 @@ Monsta.Board = (function () {
     return this.current[sprite.hexPos.row][sprite.hexPos.col];
   };
 
-  this.areSame = function(one, two) {
-    return (one.col == two.col && one.row == two.row);
-  };
-
-  this.hexHeight = function(width) {
+  this.hexHeight = function (width) {
     return Math.sqrt(width * width * 3 / 4);
   };
 
-  this.calculatePosition = function(col, row) {
+  this.calculatePosition = function (col, row) {
     var
       hexHeight = this.hexHeight(this.config.hexWidth),
       offsetX = col % 2 ? 0 : 0,

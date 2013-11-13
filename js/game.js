@@ -1,4 +1,4 @@
-Monsta.Game = function (game) {
+Game = function (game) {
 
   var _this = this;
 
@@ -27,7 +27,7 @@ Monsta.Game = function (game) {
 
   this.create = function () {
 
-    Monsta.Board.build();
+    Board.build();
 
     this.backgroundGroup = game.add.group();
     this.unselectables = [];
@@ -53,8 +53,8 @@ Monsta.Game = function (game) {
   this.forEachPiece = function (callback) {
     var r, c;
 
-    for (r = 0; r < Monsta.Board.config.size.rows; r++) {
-      for (c = 0; c < Monsta.Board.config.size.cols; c++) {
+    for (r = 0; r < Board.config.size.rows; r++) {
+      for (c = 0; c < Board.config.size.cols; c++) {
         callback(c, r);
       }
     }
@@ -79,7 +79,7 @@ Monsta.Game = function (game) {
 
   this.addSprite = function (col, row, kind) {
     var sprite,
-      pos = Monsta.Board.calculatePosition(col, row);
+      pos = Board.calculatePosition(col, row);
 
     sprite = game.add.sprite(pos.x, pos.y, kind);
     sprite.anchor.setTo(0.5, 0.5);
@@ -95,10 +95,10 @@ Monsta.Game = function (game) {
 
   this.addCandy = function (col, row) {
 
-    var kind = Monsta.Board.current[row][col],
+    var kind = Board.current[row][col],
       candy = this.addSprite(col, row, kind);
 
-    candy.scale.setTo(Monsta.Board.config.candyScale, Monsta.Board.config.candyScale);
+    candy.scale.setTo(Board.config.candyScale, Board.config.candyScale);
 
     return candy;
   };
@@ -107,7 +107,7 @@ Monsta.Game = function (game) {
 
     var hex = this.addSprite(col, row, 'hex');
 
-    hex.scale.setTo(Monsta.Board.config.hexScale, Monsta.Board.config.hexScale);
+    hex.scale.setTo(Board.config.hexScale, Board.config.hexScale);
     hex.inputEnabled = hex.input.pixelPerfect = true;
     hex.hexPos = { col: col, row: row };
 
@@ -119,46 +119,40 @@ Monsta.Game = function (game) {
 
 
   this.hexDown = function (sprite) {
-    this.addToSelection(sprite.hexPos);
+    Board.Selection.add(sprite.hexPos);
     this.startSelecting();
   };
 
   this.hexOver = function (sprite) {
 
     var firstCandyKind,
-      lastSelectedCandy,
-      preLastSelectedCandy,
       tryCandy;
 
-    if (Monsta.Board.selection.length == 0) return;
+    if (Board.Selection.empty()) return;
 
-    firstCandyKind = Monsta.Board.posToKind(Monsta.Board.selection[0]);
-    tryCandy = Monsta.Board.spriteToKind(sprite);
+    firstCandyKind = Board.posToKind(Board.Selection.items[0]);
+    tryCandy = Board.spriteToKind(sprite);
 
     if (firstCandyKind != tryCandy) return;
 
-    lastSelectedCandy = Monsta.Board.selection[Monsta.Board.selection.length - 1];
-    preLastSelectedCandy = Monsta.Board.selection[Monsta.Board.selection.length - 2];
-
-    if (Monsta.Board.selection.length > 1 &&
-      Monsta.Board.areSame(sprite.hexPos, preLastSelectedCandy)) {
-      console.log('aresame',Monsta.Board.selection.length, sprite.hexPos, preLastSelectedCandy)
-      this.removeFromSelection();
-    } else if (Monsta.Board.areAdjacent(lastSelectedCandy, sprite.hexPos)) {
-      this.addToSelection(sprite.hexPos);
+    if (Board.Selection.items.length > 1 &&
+      Board.Selection.areSame(sprite.hexPos, Board.Selection.penultimate())) {
+      Board.Selection.remove();
+    } else if (Board.areAdjacent(Board.Selection.last(), sprite.hexPos)) {
+      Board.Selection.add(sprite.hexPos);
     }
   };
 
   this.hexUp = function () {
 
     this.endSelecting();
-    this.clearSelection();
+    Board.Selection.clear();
   };
 
   this.updateUnselectables = function () {
-    var firstCandyKind = Monsta.Board.posToKind(Monsta.Board.selection[0]);
+    var firstCandyKind = Board.posToKind(Board.Selection.first());
     this.forEachPiece(function (c, r) {
-      if (Monsta.Board.current[r][c] != firstCandyKind) {
+      if (Board.current[r][c] != firstCandyKind) {
         _this.unselectables.push(_this.candySprites[r][c]);
       }
     });
@@ -180,33 +174,21 @@ Monsta.Game = function (game) {
     this.unselectables = [];
   };
 
-
-  this.addToSelection = function (pos) {
-  console.log('adding', Monsta.Board.selection.length, pos)
-    Monsta.Board.selection.push(pos);
-
-    this.tweenThat(this.candySprites[pos.row][pos.col].scale,
-      { x: Monsta.Board.config.candyScale * 1.2, y: Monsta.Board.config.candyScale * 1.2 });
-    this.bgSprites[pos.row][pos.col].loadTexture('hex-glow', 0);
+  Board.Selection.onAdd = function (added) {
+    _this.tweenThat(_this.candySprites[added.row][added.col].scale,
+      { x: Board.config.candyScale * 1.2, y: Board.config.candyScale * 1.2 });
+    _this.bgSprites[added.row][added.col].loadTexture('hex-glow', 0);
     // add arrow
   };
 
-  this.removeFromSelection = function () {
-    if (Monsta.Board.selection.length == 0) return;
+  Board.Selection.onRemove = function (removed) {
 
-    var removed = Monsta.Board.selection.pop();
-
-    this.tweenThat(this.candySprites[removed.row][removed.col].scale,
-      { x: Monsta.Board.config.candyScale, y: Monsta.Board.config.candyScale });
-    this.bgSprites[removed.row][removed.col].loadTexture('hex', 0);
+    _this.tweenThat(_this.candySprites[removed.row][removed.col].scale,
+      { x: Board.config.candyScale, y: Board.config.candyScale });
+    _this.bgSprites[removed.row][removed.col].loadTexture('hex', 0);
     // remove arrow
   };
 
-  this.clearSelection = function () {
-    while (Monsta.Board.selection.length > 0) {
-      this.removeFromSelection();
-    }
-  };
 
   return this;
 };
