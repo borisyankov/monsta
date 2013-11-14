@@ -11,6 +11,8 @@ Board = (function () {
     };
     this.onRemove = function (pos) {
     };
+    this.onBeforeEnd = function () {
+    };
 
     this.empty = function () {
       return this.items.length == 0;
@@ -26,15 +28,19 @@ Board = (function () {
 
     this.remove = function () {
 
-      //if (Board.selection.length == 0) return;
-
       var pos = _this.items.pop();
       _this.onRemove(pos);
     };
 
-    this.clear = function () {
-      while (this.items.length > 0) {
-        this.remove();
+    this.end = function () {
+
+      if (_this.items.length < 3) {
+        while (_this.items.length > 0) {
+          _this.remove();
+        }
+      } else {
+        _this.onBeforeEnd();
+        _this.items = [];
       }
     };
 
@@ -99,6 +105,13 @@ Board = (function () {
     this.current = generateBoard();
   };
 
+
+  this.replaceMatched = function () {
+    this.Selection.items.forEach(function (i) {
+      this.current[i.row][i.col] = generatePiece();
+    });
+  }
+
   this.posToKind = function (pos) {
     return this.current[pos.row][pos.col];
   };
@@ -122,9 +135,14 @@ Board = (function () {
     return { x: centerX, y: centerY };
   };
 
-  this.areAdjacent = function (one, two) {
-    return (one.col == two.col && Math.abs(one.row - two.row) == 1)
-      || ((one.col - 1 == two.col || one.col + 1 == two.col) && (two.row - one.col <= 1));
+  this.areAdjacent = function (a, b) {
+
+    var offsetY = (a.col % 2) * -1,
+      adjacentRow = (a.row == b.row - 1 || a.row == b.row + 1),
+      adjacentCol = (a.col == b.col - 1 || a.col == b.col + 1);
+
+    return (a.col == b.col && adjacentRow) ||
+      (adjacentCol && (a.row == b.row + offsetY || a.row == b.row + 1 + offsetY));
   };
 
 

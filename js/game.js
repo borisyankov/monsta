@@ -162,7 +162,7 @@ Game = function (game) {
   this.hexUp = function () {
 
     this.endSelecting();
-    Board.Selection.clear();
+    Board.Selection.end();
   };
 
   this.updateUnselectables = function () {
@@ -216,6 +216,18 @@ Game = function (game) {
     }
 
     _this.coinSound.play('', 0, 0.2 + 0.05 * Board.Selection.items.length, false);
+  };
+
+  Board.Selection.onBeforeEnd = function() {
+    Board.Selection.items.forEach(function(removed) {
+      _this.bgSprites[removed.row][removed.col].loadTexture('hex', 0);
+      _this.candySprites[removed.row][removed.col].destroy();
+    });
+
+   _this.arrowsGroup.removeAll();
+    // play epic sound
+
+    Board.replaceMatched();
   };
 
 
