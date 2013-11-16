@@ -220,11 +220,22 @@ Game = function (game) {
 
   Board.Selection.onBeforeEnd = function() {
     Board.Selection.items.forEach(function(removed) {
+
+      var pos, emitter;
+
       _this.bgSprites[removed.row][removed.col].loadTexture('hex', 0);
       _this.candySprites[removed.row][removed.col].destroy();
+
+      pos = Board.calculatePosition(removed.col, removed.row);
+
+      emitter = game.add.emitter(pos.x, pos.y, 10);
+      emitter.makeParticles('sparkle', 10);
+      emitter.gravity = 10;
+      emitter.start(true, 500, null, 10);
     });
 
    _this.arrowsGroup.removeAll();
+    
     // play epic sound
 
     Board.replaceMatched();

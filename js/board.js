@@ -78,7 +78,7 @@ Board = (function () {
 
   this.config = {
     pieces: ['circlet', 'bonbon', 'sweet', 'diamond'],
-    size: { cols: 11, rows: 5 },
+    size: { cols: 9, rows: 6 },
     hexWidth: 200,
     hexScale: 200 / 400,
     candyScale: 200 / 400 / 1.8
@@ -129,8 +129,8 @@ Board = (function () {
       hexHeight = this.hexHeight(this.config.hexWidth),
       offsetX = col % 2 ? 0 : 0,
       offsetY = col % 2 ? hexHeight / 4 : 0,
-      centerX = col * (this.config.hexWidth * 3 / 8) + offsetX + 100,
-      centerY = row * hexHeight / 2 + offsetY + 100;
+      centerX = col * (this.config.hexWidth * 3 / 8) + offsetX + 80,
+      centerY = row * hexHeight / 2 + offsetY + 200;
 
     return { x: centerX, y: centerY };
   };
